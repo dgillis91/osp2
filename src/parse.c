@@ -13,7 +13,7 @@ void print_help_and_terminate(char* argv[]) {
            "For: \n"
            "    -h: Display help and exit.\n"
            "    -i: inputfilename\n"
-           "    -o: outputfilename\n");
+           "    -o: outputfilename\n", argv[0]);
     exit(EXIT_SUCCESS);
 }
 

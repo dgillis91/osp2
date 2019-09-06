@@ -4,17 +4,17 @@ CFLAGS=-I$(IDIR)
 
 ODIR=../obj
 
-_DEPS = parse.h filedet.h statq.h
+_DEPS = parse.h 
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
-_OBJ = dt.o parse.o filedet.o statq.o
+_OBJ = subsetsum.o parse.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
 
 $(ODIR)/%.o: %.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
-dt: $(OBJ)
+subsetsum: $(OBJ)
 	$(CC) -o ../bin/$@ $^ $(CFLAGS)
 
 .PHONY: clean
