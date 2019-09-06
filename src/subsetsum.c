@@ -21,6 +21,7 @@ int main(int argc, char* argv[]) {
         perror("Failure to set SIGALRM");
         return EXIT_FAILURE;
     }
+    alarm(2);
 
     free_program_options(&program_opts);
     pause();
