@@ -88,6 +88,10 @@ int main(int argc, char* argv[]) {
         if (child_pid == CHILD_PROCESS) {
             fprintf(stderr, "i: %d pid: %ld, ppid: %ld cid: %ld\n",
                     i, (long) getpid(), (long) getppid(), (long) child_pid);
+            // Don't need to allocate more data for this? I think not, they are
+            // all sequential. Is this undefined? 
+            readline(read_fd, read_buffer, READ_BUFFER_SIZE);
+            fprintf(stderr, "%s\n", read_buffer);
             sleep(2);
             break;
         }
