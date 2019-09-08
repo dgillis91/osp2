@@ -1,8 +1,9 @@
 #include "../include/tokenize.h"
 #include <string.h>
+#include <stdlib.h>
 
 
-int token_count(const char* string, const char delimiter) {
+int token_count(const char* string, const char* delimiter) {
     /* Return the number of tokens in `string` as delimited by `delimiter`.
     ** We follow the format in "UNIX SYSTEM PROGRAMMING" in copying the
     ** string so that we can't modify it in `strtok`. Note that `strtok` DOES
