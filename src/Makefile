@@ -4,10 +4,10 @@ CFLAGS=-I$(IDIR)
 
 ODIR=../obj
 
-_DEPS = parse.h fileutil.h
+_DEPS = parse.h fileutil.h tokenize.h
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
-_OBJ = subsetsum.o parse.o fileutil.o
+_OBJ = subsetsum.o parse.o fileutil.o tokenize.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
 
