@@ -10,6 +10,7 @@
 
 #include <../include/parse.h>
 #include <../include/fileutil.h>
+#include <../include/tokenize.h>
 
 #define CHILD_PROCESS 0
 #define READ_BUFFER_SIZE 100
@@ -91,7 +92,8 @@ int main(int argc, char* argv[]) {
             // Don't need to allocate more data for this? I think not, they are
             // all sequential. Is this undefined? 
             readline(read_fd, read_buffer, READ_BUFFER_SIZE);
-            fprintf(stderr, "%s\n", read_buffer);
+            fprintf(stderr, "Line %d: %s\n", i, read_buffer);
+            fprintf(stderr, "Token Count: %d\n", token_count(read_buffer, " "));
             sleep(2);
             break;
         }
