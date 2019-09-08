@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <signal.h>
+#include <fcntl.h>
 
 #include <../include/parse.h>
 
@@ -25,9 +26,14 @@ int main(int argc, char* argv[]) {
 
     // TODO: This needs to be read from the file.
     unsigned int child_process_count = 2;
+    // PID of the forked child.
     pid_t child_pid;
+    // Error status from `wait()` call.
     int wait_stat = 0;
     char* error_message_buffer = malloc(sizeof(char) * 100);
+
+    // Read and write file descriptors
+    int read_fd, write_fd;
 
     // Add a timer
     if (signal(SIGALRM, alarm_handler) == SIG_ERR) {
@@ -39,6 +45,12 @@ int main(int argc, char* argv[]) {
     alarm(10);
 
     // Open the passed in file.
+    if ((read_fd = open(program_opts->input_file, O_RDONLY)) == -1) {
+        char err[] = "Failure to open infile";
+        error_formatted(&error_message_buffer, argv[0], err, strlen(err));
+        perror(error_message_buffer);
+        return EXIT_FAILURE;
+    }
 
     // Read the first line
 
@@ -65,6 +77,8 @@ int main(int argc, char* argv[]) {
         }
     }
 
+    close(read_fd);
+    free(error_message_buffer);
     free_program_options(&program_opts);
 }
 
