@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#define PARENT_PROCESS 0
+#define CHILD_PROCESS 0
 
 
 int main(int argc, char* argv[]) {
@@ -24,7 +24,7 @@ int main(int argc, char* argv[]) {
     */
     int i;
     for (i = 0; i < child_process_count; ++i) {
-        if ((child_pid = fork()) == PARENT_PROCESS) {
+        if ((child_pid = fork()) != CHILD_PROCESS) {
             break;
         }
     }
