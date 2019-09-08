@@ -9,8 +9,11 @@
 #include <fcntl.h>
 
 #include <../include/parse.h>
+#include <../include/fileutil.h>
 
 #define CHILD_PROCESS 0
+#define READ_BUFFER_SIZE 100
+#define ERROR_MESSAGE_BUFFER_SIZE 100
 
 
 void alarm_handler(int);
@@ -20,17 +23,19 @@ void error_formatted(char**, char*, const char*, unsigned int);
 
 
 int main(int argc, char* argv[]) {
-    // Parse options
+    // Parse options.
     program_options_t* program_opts = malloc_default_program_options();
     parse_options(argc, argv, program_opts);
 
     // TODO: This needs to be read from the file.
-    unsigned int child_process_count = 2;
+    unsigned int child_process_count = 0;
     // PID of the forked child.
     pid_t child_pid;
     // Error status from `wait()` call.
     int wait_stat = 0;
-    char* error_message_buffer = malloc(sizeof(char) * 100);
+    // Buffers for error message and reading.
+    char* error_message_buffer = malloc(sizeof(char) * ERROR_MESSAGE_BUFFER_SIZE);
+    char* read_buffer = (char*) malloc(sizeof(char) * READ_BUFFER_SIZE);
 
     // Read and write file descriptors
     int read_fd, write_fd;
@@ -45,14 +50,32 @@ int main(int argc, char* argv[]) {
     alarm(10);
 
     // Open the passed in file.
+    printf("%s\n", program_opts->input_file);
     if ((read_fd = open(program_opts->input_file, O_RDONLY)) == -1) {
         char err[] = "Failure to open infile";
         error_formatted(&error_message_buffer, argv[0], err, strlen(err));
         perror(error_message_buffer);
         return EXIT_FAILURE;
     }
+    printf("Read File Descriptor: %d\n", read_fd);
 
     // Read the first line
+    int bytes_read;
+    if ((bytes_read = readline(read_fd, read_buffer, 100)) == 0) {
+        char err[] = "Empty file";
+        error_formatted(&error_message_buffer, argv[0], err, strlen(err));
+        perror(error_message_buffer);
+        return EXIT_FAILURE;
+    } else if (bytes_read == -1) {
+        char err[] = "Unable to read";
+        error_formatted(&error_message_buffer, argv[0], err, strlen(err));
+        perror(error_message_buffer);
+        return EXIT_FAILURE;
+    }
+    // Strip the newline.
+    read_buffer[bytes_read - 1] = '\0';
+    // Get the child process count.
+    child_process_count = atoi(read_buffer);
 
     // Fork off child processes
     int i;
