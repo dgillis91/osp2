@@ -98,5 +98,17 @@ void parse_options(int argc, char* argv[], program_options_t* program_opts) {
             break;
        }
     }
+
+    if (program_opts->input_file == NULL || program_opts->output_file == NULL) {
+        const char default_input_file[] = "input.dat";
+        const char default_output_file[] = "output.dat";
+        const int default_input_len = strlen(default_input_file);
+        const int default_output_len = strlen(default_output_file);
+
+        program_opts->input_file = (char*) malloc(sizeof(char) * default_input_len);
+        strcpy(program_opts->input_file, default_input_file);
+        program_opts->output_file = (char*) malloc(sizeof(char) * default_output_len);
+        stcpy(program_opts->output_file, default_output_file);
+    }
 }
 
