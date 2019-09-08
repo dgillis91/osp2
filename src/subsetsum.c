@@ -27,7 +27,7 @@ int main(int argc, char* argv[]) {
     program_options_t* program_opts = malloc_default_program_options();
     parse_options(argc, argv, program_opts);
 
-    // TODO: This needs to be read from the file.
+    // Number of child processes to spawn. 
     unsigned int child_process_count = 0;
     // PID of the forked child.
     pid_t child_pid;
@@ -106,6 +106,7 @@ int main(int argc, char* argv[]) {
 
     close(read_fd);
     free(error_message_buffer);
+    free(read_buffer);
     free_program_options(&program_opts);
 }
 
