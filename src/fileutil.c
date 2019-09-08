@@ -16,7 +16,7 @@ int readline(int fd, char* buffer, int  nbytes) {
     int return_value;
 
     while (numread < nbytes - 1) {
-        return_value = read(fd, buffer + numread, nbytes);
+        return_value = read(fd, buffer + numread, 1);
 
         if (is_interrupted(return_value)) {
             continue;
