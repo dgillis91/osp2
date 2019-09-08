@@ -35,6 +35,7 @@ int readline(int fd, char* buffer, int  nbytes) {
             return READ_FAILURE;
         }
 
+        ++numread;
         if (buffer[numread - 1] == '\n') {
             buffer[numread] = '\0';
             return numread;
