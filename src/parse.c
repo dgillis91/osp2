@@ -108,7 +108,7 @@ void parse_options(int argc, char* argv[], program_options_t* program_opts) {
         program_opts->input_file = (char*) malloc(sizeof(char) * default_input_len);
         strcpy(program_opts->input_file, default_input_file);
         program_opts->output_file = (char*) malloc(sizeof(char) * default_output_len);
-        stcpy(program_opts->output_file, default_output_file);
+        strcpy(program_opts->output_file, default_output_file);
     }
 }
 
