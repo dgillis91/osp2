@@ -1,3 +1,5 @@
 ## Notes
 - If a parent has set an alarm, the child is not notified if the alarm
  is raised. So, we will need to terminate the child. 
+##Todo:
+- Terminate children in handler.
