@@ -12,7 +12,7 @@ int token_count(const char* string, const char* delimiter) {
     unsigned int string_length = strlen(string);
     char* temp;
     int numtokens;
-    if ((temp = (char*) malloc(sizeof(char) * string_length)) == NULL) {
+    if ((temp = (char*) malloc(sizeof(char) * string_length + 1)) == NULL) {
         return -1;
     }
     strcpy(temp, string);
@@ -21,4 +21,20 @@ int token_count(const char* string, const char* delimiter) {
     }
     free(temp);
     return numtokens;
+}
+
+
+int tokenize(const char* string, int* destination, char* delimiter) {
+    char* temp;
+    if ((temp = (char*) malloc(sizeof(int) * strlen(string) + 1)) == NULL) {
+        return -1;
+    }
+    strcpy(temp, string);
+    int i = 0;
+    char* p = strtok(temp, delimiter);
+    while (p != NULL) {
+        destination[i++] = atoi(p);
+        p = strtok(NULL, delimiter);
+    }
+    return 0;
 }

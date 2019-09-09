@@ -5,4 +5,6 @@
 int token_count(const char*, const char*);
 
 
+int tokenize(const char*, int*, char*);
+
 #endif

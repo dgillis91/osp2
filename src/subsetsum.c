@@ -89,11 +89,19 @@ int main(int argc, char* argv[]) {
         if (child_pid == CHILD_PROCESS) {
             fprintf(stderr, "i: %d pid: %ld, ppid: %ld cid: %ld\n",
                     i, (long) getpid(), (long) getppid(), (long) child_pid);
-            // Don't need to allocate more data for this? I think not, they are
-            // all sequential. Is this undefined? 
+            // Read the line of the file.
             readline(read_fd, read_buffer, READ_BUFFER_SIZE);
+            // Get the number of tokens
+            int line_token_count = token_count(read_buffer, " ");
+            // Create an array to hold them
+            int* array = (int*) malloc(sizeof(int) * line_token_count);
+            // Tokenize into the array.
+            tokenize(read_buffer, array, " ");
             fprintf(stderr, "Line %d: %s\n", i, read_buffer);
-            fprintf(stderr, "Token Count: %d\n", token_count(read_buffer, " "));
+            int i;
+            for (i = 0; i < line_token_count; ++i) {
+                fprintf(stderr, "%d\n", array[i]);
+            }
             sleep(2);
             break;
         }
