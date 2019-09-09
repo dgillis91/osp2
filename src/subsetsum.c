@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <signal.h>
 #include <fcntl.h>
+#include <errno.h>
 
 #include <../include/parse.h>
 #include <../include/fileutil.h>
@@ -20,7 +21,10 @@
 void alarm_handler(int);
 
 
-void error_formatted(char**, char*, const char*, unsigned int);
+void error_formatted(char**, const char*, const char*, unsigned int);
+
+
+void print_error_and_terminate(const char*, const char*);
 
 
 int main(int argc, char* argv[]) {
@@ -34,8 +38,7 @@ int main(int argc, char* argv[]) {
     pid_t child_pid;
     // Error status from `wait()` call.
     int wait_stat = 0;
-    // Buffers for error message and reading.
-    char* error_message_buffer = malloc(sizeof(char) * ERROR_MESSAGE_BUFFER_SIZE);
+    // Buffers for reading.
     char* read_buffer = (char*) malloc(sizeof(char) * READ_BUFFER_SIZE);
 
     // Read and write file descriptors
@@ -43,35 +46,23 @@ int main(int argc, char* argv[]) {
 
     // Add a timer
     if (signal(SIGALRM, alarm_handler) == SIG_ERR) {
-        char err[] = "Failure to set SIGALRM";
-        error_formatted(&error_message_buffer, argv[0], err, strlen(err));
-        perror(error_message_buffer);
-        return EXIT_FAILURE;
+        print_error_and_terminate("Failure to set SIGALRM", argv[0]);
     }
     alarm(10);
 
     // Open the passed in file.
     printf("%s\n", program_opts->input_file);
     if ((read_fd = open(program_opts->input_file, O_RDONLY)) == -1) {
-        char err[] = "Failure to open infile";
-        error_formatted(&error_message_buffer, argv[0], err, strlen(err));
-        perror(error_message_buffer);
-        return EXIT_FAILURE;
+        print_error_and_terminate("Failure to open file", argv[0]);
     }
     printf("Read File Descriptor: %d\n", read_fd);
 
     // Read the first line
     int bytes_read;
     if ((bytes_read = readline(read_fd, read_buffer, 100)) == 0) {
-        char err[] = "Empty file";
-        error_formatted(&error_message_buffer, argv[0], err, strlen(err));
-        perror(error_message_buffer);
-        return EXIT_FAILURE;
+        print_error_and_terminate("Empty file", argv[0]);
     } else if (bytes_read == -1) {
-        char err[] = "Unable to read";
-        error_formatted(&error_message_buffer, argv[0], err, strlen(err));
-        perror(error_message_buffer);
-        return EXIT_FAILURE;
+        print_error_and_terminate("Unable to read", argv[0]);
     }
     // Strip the newline.
     read_buffer[bytes_read - 1] = '\0';
@@ -115,7 +106,6 @@ int main(int argc, char* argv[]) {
     }
 
     close(read_fd);
-    free(error_message_buffer);
     free(read_buffer);
     free_program_options(&program_opts);
 }
@@ -126,10 +116,28 @@ void alarm_handler(int signum) {
 }
 
 
-void error_formatted(char** buffer, char* program_name, const char* message, unsigned int message_length) {
+void error_formatted(char** buffer, const char* program_name, const char* message, unsigned int message_length) {
     /* Format the error for fprintf. buffer should be long enough to hold message_length + the length of 
     ** the program name.
     */
     unsigned int total_buffer_write_length = message_length + strlen(program_name) + 3;
     snprintf(*buffer, total_buffer_write_length, "%s: %s", program_name, message);
+}
+
+void print_error_and_terminate(const char* error_message, const char* script_name) {
+    // We need the err number in case malloc sets errno
+    int local_errno = errno;
+    char* error_message_buffer = (char*) malloc(sizeof(char) * ERROR_MESSAGE_BUFFER_SIZE);
+    
+    if (error_message_buffer == NULL) {
+        perror("Fail to allocate error message buffer");
+        errno = local_errno;
+        perror("Unable to describe error");
+        exit(EXIT_FAILURE);
+    }
+
+    error_formatted(&error_message_buffer, script_name, error_message, strlen(error_message));
+    perror(error_message_buffer);
+    free(error_message_buffer);
+    exit(EXIT_FAILURE);
 }
