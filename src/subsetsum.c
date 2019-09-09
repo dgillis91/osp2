@@ -18,6 +18,11 @@
 #define ERROR_MESSAGE_BUFFER_SIZE 100
 
 
+char* global_script_name = NULL;
+int global_read_fd;
+int global_write_fd;
+
+
 void alarm_handler(int);
 
 
@@ -31,6 +36,9 @@ int main(int argc, char* argv[]) {
     // Parse options.
     program_options_t* program_opts = malloc_default_program_options();
     parse_options(argc, argv, program_opts);
+
+    // Point the global script name at argv[0]
+    global_script_name = argv[0];
 
     // Number of child processes to spawn. 
     unsigned int child_process_count = 0;
@@ -48,7 +56,7 @@ int main(int argc, char* argv[]) {
     if (signal(SIGALRM, alarm_handler) == SIG_ERR) {
         print_error_and_terminate("Failure to set SIGALRM", argv[0]);
     }
-    alarm(10);
+    alarm(2);
 
     // Open the passed in file.
     printf("%s\n", program_opts->input_file);
@@ -56,6 +64,7 @@ int main(int argc, char* argv[]) {
         print_error_and_terminate("Failure to open file", argv[0]);
     }
     printf("Read File Descriptor: %d\n", read_fd);
+    global_read_fd = read_fd;
 
     // Read the first line
     int bytes_read;
@@ -68,6 +77,7 @@ int main(int argc, char* argv[]) {
     read_buffer[bytes_read - 1] = '\0';
     // Get the child process count.
     child_process_count = atoi(read_buffer);
+    printf("Child Process Count: %d\n", child_process_count);
 
     // Fork off child processes
     int i;
@@ -93,7 +103,6 @@ int main(int argc, char* argv[]) {
             for (i = 0; i < line_token_count; ++i) {
                 fprintf(stderr, "%d\n", array[i]);
             }
-            sleep(2);
             break;
         }
 
@@ -105,14 +114,24 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    close(read_fd);
-    free(read_buffer);
-    free_program_options(&program_opts);
+    if (child_pid != CHILD_PROCESS) {
+        close(read_fd);
+        free(read_buffer);
+        free_program_options(&program_opts);
+        // Remove for production. 
+        pause();
+    }
 }
 
 
 void alarm_handler(int signum) {
-    printf("Alarm raised.\n");
+    int local_errno;
+    local_errno = errno;
+    if (close(global_read_fd) == -1) {
+        perror("Failed to close file in sig handler");
+        errno = local_errno;
+    }
+    print_error_and_terminate("Alarm raised", global_script_name);
 }
 
 
