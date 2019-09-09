@@ -99,6 +99,11 @@ void parse_options(int argc, char* argv[], program_options_t* program_opts) {
        }
     }
 
+    if (argv[optind] != NULL) {
+        fprintf(stderr, "%s: Unexpected non-option argument: %s\n", argv[0], argv[optind]);
+        print_help_and_terminate(argv);
+    }
+
     if (program_opts->input_file == NULL) {
         const char default_input_file_path[] = "input.dat";
         const unsigned int default_input_path_len = strlen(default_input_file_path);
