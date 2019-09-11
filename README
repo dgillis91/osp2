@@ -5,4 +5,4 @@
  Note that in some cases, we do not block signals while setting the globals.
  This is a generally bad practice.
 ##Todo:
-- Terminate children in handler.
+- Implement subset sum. 
