@@ -117,6 +117,16 @@ int main(int argc, char* argv[]) {
         }
 
         if (child_pid != CHILD_PROCESS) {
+        if ((sigemptyset(&block_set) == -1) || (sigaddset(&block_set, SIGALRM) == -1)) {
+            print_error_and_terminate("Failure to initialize sigset", argv[0]);
+        }
+        if (sigprocmask(SIG_BLOCK, &block_set, NULL) == -1) {
+            print_error_and_terminate("Failure to block SIGALRM", argv[0]);
+        }
+        global_child_process = 0;
+        if (sigprocmask(SIG_UNBLOCK, &block_set, NULL) == -1) {
+            print_error_and_terminate("Failure to unblock SIGALRM", argv[0]);
+        }
             pid_t p = wait(NULL);
             fprintf(stderr, "i: %d pid: %ld ppid: %ld cid: %ld\n",
                     i, (long) getpid(), (long) getppid(), (long) child_pid);
