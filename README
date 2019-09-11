@@ -1,5 +1,8 @@
 ## Notes
 - If a parent has set an alarm, the child is not notified if the alarm
  is raised. So, we will need to terminate the child. 
+- We can't pass data to a signal handler. So, we have to rely on globals.
+ Note that in some cases, we do not block signals while setting the globals.
+ This is a generally bad practice.
 ##Todo:
 - Terminate children in handler.
