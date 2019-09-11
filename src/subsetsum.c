@@ -63,7 +63,6 @@ int main(int argc, char* argv[]) {
     if ((read_fd = open(program_opts->input_file, O_RDONLY)) == -1) {
         print_error_and_terminate("Failure to open file", argv[0]);
     }
-    printf("Read File Descriptor: %d\n", read_fd);
     global_read_fd = read_fd;
 
     // Read the first line
