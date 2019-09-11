@@ -12,6 +12,7 @@
 #include <../include/parse.h>
 #include <../include/fileutil.h>
 #include <../include/tokenize.h>
+#include <../include/linked_list.h>
 
 #define CHILD_PROCESS 0
 #define READ_BUFFER_SIZE 100
@@ -76,6 +77,16 @@ int main(int argc, char* argv[]) {
     read_buffer[bytes_read - 1] = '\0';
     // Get the child process count.
     child_process_count = atoi(read_buffer);
+
+    // TEMP: Driver for linked list
+    list_node_t* list = NULL;
+    int a;
+    for (a = 0; a < 10; ++a) {
+        append(&list, a);
+    }
+    display_list(list, ' ', stderr);
+    printf("\n");
+
 
     // Fork off child processes
     int i;
