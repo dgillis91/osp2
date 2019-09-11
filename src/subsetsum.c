@@ -77,7 +77,6 @@ int main(int argc, char* argv[]) {
     read_buffer[bytes_read - 1] = '\0';
     // Get the child process count.
     child_process_count = atoi(read_buffer);
-    printf("Child Process Count: %d\n", child_process_count);
 
     // Fork off child processes
     int i;
@@ -98,11 +97,6 @@ int main(int argc, char* argv[]) {
             int* array = (int*) malloc(sizeof(int) * line_token_count);
             // Tokenize into the array.
             tokenize(read_buffer, array, " ");
-            fprintf(stderr, "Line %d: %s\n", i, read_buffer);
-            int i;
-            for (i = 0; i < line_token_count; ++i) {
-                fprintf(stderr, "%d\n", array[i]);
-            }
             break;
         }
 
@@ -110,7 +104,6 @@ int main(int argc, char* argv[]) {
             pid_t p = wait(NULL);
             fprintf(stderr, "i: %d pid: %ld ppid: %ld cid: %ld\n",
                     i, (long) getpid(), (long) getppid(), (long) child_pid);
-            fprintf(stderr, "Got child: %ld\n", (long) p);
         }
     }
 
