@@ -21,7 +21,7 @@
 char* global_script_name = NULL;
 int global_read_fd;
 int global_write_fd;
-
+pid_t global_child_process = 0;
 
 void alarm_handler(int);
 
@@ -81,6 +81,22 @@ int main(int argc, char* argv[]) {
     // Fork off child processes
     int i;
     for (i = 0; i < child_process_count; ++i) {
+        // Before we fork, we need to set the global 
+        // child process id to 0. This will tell the
+        // signal handler it doesn't need to kill the
+        // child. Note a child proc will never reach
+        // this code.
+        sigset_t block_set;
+        if ((sigemptyset(&block_set) == -1) || (sigaddset(&block_set, SIGALRM) == -1)) {
+            print_error_and_terminate("Failure to initialize sigset", argv[0]);
+        }
+        if (sigprocmask(SIG_BLOCK, &block_set, NULL) == -1) {
+            print_error_and_terminate("Failure to block SIGALRM", argv[0]);
+        }
+        global_child_process = 0;
+        if (sigprocmask(SIG_UNBLOCK, &block_set, NULL) == -1) {
+            print_error_and_terminate("Failure to unblock SIGALRM", argv[0]);
+        }
         if ((child_pid = fork()) == -1) {
             perror("Failed to fork");
             return EXIT_FAILURE;
@@ -107,6 +123,20 @@ int main(int argc, char* argv[]) {
         }
     }
 
+    // Now, at this point, we have gone through all children and don't need to kill
+    // the child process. So, we again set the global child to 0. 
+    sigset_t block_set;
+    if ((sigemptyset(&block_set) == -1) || (sigaddset(&block_set, SIGALRM) == -1)) {
+        print_error_and_terminate("Failure to initialize sigset", argv[0]);
+    }
+    if (sigprocmask(SIG_BLOCK, &block_set, NULL) == -1) {
+        print_error_and_terminate("Failure to block SIGALRM", argv[0]);
+    }
+    global_child_process = 0;
+    if (sigprocmask(SIG_UNBLOCK, &block_set, NULL) == -1) {
+        print_error_and_terminate("Failure to unblock SIGALRM", argv[0]);
+    }
+
     if (child_pid != CHILD_PROCESS) {
         close(read_fd);
         free(read_buffer);
@@ -123,6 +153,9 @@ void alarm_handler(int signum) {
     if (close(global_read_fd) == -1) {
         perror("Failed to close file in sig handler");
         errno = local_errno;
+    }
+    if (global_child_process) {
+        kill(global_child_process, SIGKILL);
     }
     print_error_and_terminate("Alarm raised", global_script_name);
 }
