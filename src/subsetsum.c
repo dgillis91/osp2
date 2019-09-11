@@ -112,6 +112,9 @@ int main(int argc, char* argv[]) {
             int* array = (int*) malloc(sizeof(int) * line_token_count);
             // Tokenize into the array.
             tokenize(read_buffer, array, " ");
+            // Perform the subset sum problem.
+            // Free the allocated set.
+            free(array);
             break;
         }
 
