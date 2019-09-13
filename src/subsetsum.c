@@ -117,6 +117,7 @@ int main(int argc, char* argv[]) {
                     i, (long) getpid(), (long) getppid(), (long) child_pid);
             // Read the line of the file.
             readline(read_fd, read_buffer, READ_BUFFER_SIZE);
+            printf("%s\n", read_buffer);
             // Get the number of tokens
             int line_token_count = token_count(read_buffer, " ");
             // Create an array to hold them
