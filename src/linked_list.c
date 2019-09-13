@@ -37,7 +37,7 @@ int append(list_node_t** list, int data) {
 }
 
 
-void display_list(list_node_t* list, char delimiter, FILE* restrict io) {
+void display_list(list_node_t* list, char delimiter, FILE* io) {
     list_node_t* iterator = list;
     while (iterator != NULL) {
         fprintf(io, "%d%c", iterator->data, delimiter);
