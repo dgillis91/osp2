@@ -9,9 +9,10 @@ void print_help_and_terminate(char* argv[]) {
     printf("Program to compute the subset sum problem of n many\n"
            "lines of a file. The first line of the file indicates\n"
            "the number of lines to sum.\n");
-    printf("Usage: %s [-h] [-I n] [-L -d -g -i -p -s -t -u | -l] [dirname]\n"
+    printf("Usage: %s [-h] [-t -i -o] [dirname]\n"
            "For: \n"
            "    -h: Display help and exit.\n"
+           "    -t: Amount of time to allow the program to run for\n"
            "    -i: inputfilename\n"
            "    -o: outputfilename\n", argv[0]);
     exit(EXIT_SUCCESS);
@@ -28,6 +29,7 @@ program_options_t* malloc_default_program_options() {
         return NULL;
     }
     program_opts->input_file = program_opts->output_file = NULL;
+    program_opts->allowable_run_time = 10;
     return program_opts;
 }
 
@@ -67,7 +69,7 @@ void parse_options(int argc, char* argv[], program_options_t* program_opts) {
     // As per the man page, calling `getopt` parses the arguments from argv,
     // as specified in the third param, `optstring`. When there are no option
     // characters left, `getopt` returns -1.
-    while ((current_option = getopt(argc, argv, "hi:o:")) != -1) {
+    while ((current_option = getopt(argc, argv, "hi:o:t:")) != -1) {
        switch (current_option) {
         case 'h':
             print_help_and_terminate(argv);
@@ -80,15 +82,18 @@ void parse_options(int argc, char* argv[], program_options_t* program_opts) {
             program_opts->output_file = malloc(sizeof(char) * strlen(optarg));
             strcpy(program_opts->output_file, optarg);
             break;
+        case 't':
+            program_opts->allowable_run_time = atol(optarg);
+            break;
         // From the man page:
         // By default, getopt() prints an error message on standard error,
         // places the erroneous option character in optopt, and returns '?'
         // as the function result.
         // Note that `getopt` sets a global `optopt` with the option character.
         case '?':
-            // If the error is for not having an arg with `I` . . . 
-            if (optopt == 'o' || optopt == 'i') {
-                fprintf(stderr, "%s: Error: Argument `%c` requires an integer parameter\n", argv[0], optopt);
+            // If the error is for not having an arg with one of the params . . . 
+            if (optopt == 'o' || optopt == 'i' || optopt == 't') {
+                fprintf(stderr, "%s: Error: Argument `%c` requires a parameter\n", argv[0], optopt);
             // Unknown opt
             } else {
                 fprintf(stderr, "%s: Error: Unkown option character -%c\n", argv[0], optopt);

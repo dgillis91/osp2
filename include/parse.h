@@ -1,9 +1,13 @@
 #ifndef _PARSE_H
 #define _PARSE_H
 
+#include <time.h>
+
+
 typedef struct program_options {
     char* input_file;
     char* output_file;
+    time_t allowable_run_time;
 } program_options_t;
 
 
