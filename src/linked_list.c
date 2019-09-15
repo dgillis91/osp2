@@ -49,6 +49,14 @@ unsigned int list_length(list_node_t* list) {
     return length;
 }
 
+void copy_list(list_node_t* copy, list_node_t** paste) {
+    list_node_t * iterator = copy;
+    while (iterator != NULL) {
+        append(paste, iterator->data);
+        iterator = iterator->next;
+    }
+}
+
 
 void display_list(list_node_t* list, char delimiter, FILE* io) {
     list_node_t* iterator = list;

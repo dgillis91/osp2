@@ -17,6 +17,9 @@ int append(list_node_t**, int);
 unsigned int list_length(list_node_t*);
 
 
+void copy_list(list_node_t*, list_node_t**);
+
+
 void display_list(list_node_t*, char, FILE* restrict);
 
 #endif
