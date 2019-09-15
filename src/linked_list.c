@@ -37,6 +37,19 @@ int append(list_node_t** list, int data) {
 }
 
 
+unsigned int list_length(list_node_t* list) {
+    list_node_t* iterator;
+    unsigned int length = 0;
+
+    while (iterator->next != NULL) {
+        ++length;
+        iterator = iterator->next;
+    }
+
+    return length;
+}
+
+
 void display_list(list_node_t* list, char delimiter, FILE* io) {
     list_node_t* iterator = list;
     while (iterator != NULL) {
