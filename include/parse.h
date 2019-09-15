@@ -7,7 +7,7 @@
 typedef struct program_options {
     char* input_file;
     char* output_file;
-    time_t allowable_run_time;
+    unsigned int allowable_run_time;
 } program_options_t;
 
 
