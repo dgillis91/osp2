@@ -57,7 +57,7 @@ int main(int argc, char* argv[]) {
     if (signal(SIGALRM, alarm_handler) == SIG_ERR) {
         print_error_and_terminate("Failure to set SIGALRM", argv[0]);
     }
-    alarm(2);
+    alarm(program_opts->allowable_run_time);
 
     // Open the passed in file.
     printf("%s\n", program_opts->input_file);
