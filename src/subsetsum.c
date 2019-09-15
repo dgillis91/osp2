@@ -104,10 +104,12 @@ int main(int argc, char* argv[]) {
         }
         
         if (child_pid == CHILD_PROCESS) {
+            // TODO: Remove debug line.
             fprintf(stderr, "i: %d pid: %ld, ppid: %ld cid: %ld\n",
                     i, (long) getpid(), (long) getppid(), (long) child_pid);
             // Read the line of the file.
             readline(read_fd, read_buffer, READ_BUFFER_SIZE);
+            // TODO: Remove debug line.
             printf("%s\n", read_buffer);
             // Get the number of tokens
             int line_token_count = token_count(read_buffer, " ");
@@ -133,6 +135,7 @@ int main(int argc, char* argv[]) {
                 print_error_and_terminate("Failure to unblock SIGALRM", argv[0]);
             }
             pid_t p = wait(NULL);
+            // TODO: Remove debug line.
             fprintf(stderr, "i: %d pid: %ld ppid: %ld cid: %ld\n",
                     i, (long) getpid(), (long) getppid(), (long) child_pid);
         }
