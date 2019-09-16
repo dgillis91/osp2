@@ -5,7 +5,7 @@
 void display_subset(int[], int);
 
 
-void find_subsets(int*, int, int);
+void find_subset(int*, int, int);
 
 
 int subset_sum(int*, int*, int, int, int, int, int);
@@ -19,7 +19,7 @@ int main() {
 }
 
 
-void find_subsets(int* set, int size, int sum) {
+void find_subset(int* set, int size, int sum) {
     int* subset = (int*) malloc(size * sizeof(int));
 
     if (subset == NULL) {
