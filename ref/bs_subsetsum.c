@@ -5,7 +5,7 @@
 void display_subset(int[], int);
 
 
-void find_subset(int*, int, int);
+void find_subset(int*, int, int, long);
 
 
 int subset_sum(int*, int*, int, int, int, int, int);
@@ -14,12 +14,12 @@ int subset_sum(int*, int*, int, int, int, int, int);
 int main() {
     int weights[] = {10, 7, 5, 18, 12, 20, 15};
     int size = 7;
-    find_subset(weights, size, 35);
+    find_subset(weights, size, 35, 0l);
     return EXIT_SUCCESS;
 }
 
 
-void find_subset(int* set, int size, int sum) {
+void find_subset(int* set, int size, int sum, long pid) {
     int* subset = (int*) malloc(size * sizeof(int));
 
     if (subset == NULL) {
@@ -27,7 +27,9 @@ void find_subset(int* set, int size, int sum) {
         return;
     }
 
-    subset_sum(set, subset, size, 0, 0, 0, sum);
+    if (!subset_sum(set, subset, size, 0, 0, 0, sum)) {
+        printf("%ld No subset with sum of %d\n", pid, sum);
+    }
 
     free(subset);
 }
