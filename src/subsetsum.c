@@ -59,8 +59,6 @@ int main(int argc, char* argv[]) {
     alarm(program_opts->allowable_run_time);
 
     // Open the passed in file.
-    // TODO: Remove debug line.
-    printf("%s\n", program_opts->input_file);
     if ((read_fd = open(program_opts->input_file, O_RDONLY)) == -1) {
         print_error_and_terminate("Failure to open file for reading", argv[0]);
     }
@@ -109,13 +107,8 @@ int main(int argc, char* argv[]) {
         }
         
         if (child_pid == CHILD_PROCESS) {
-            // TODO: Remove debug line.
-            fprintf(stderr, "i: %d pid: %ld, ppid: %ld cid: %ld\n",
-                    i, (long) getpid(), (long) getppid(), (long) child_pid);
             // Read the line of the file.
             readline(read_fd, read_buffer, READ_BUFFER_SIZE);
-            // TODO: Remove debug line.
-            printf("%s\n", read_buffer);
             // Get the number of tokens
             int line_token_count = token_count(read_buffer, " ");
             // Create an array to hold them
@@ -151,9 +144,6 @@ int main(int argc, char* argv[]) {
                 print_error_and_terminate("Failure to unblock SIGALRM", argv[0]);
             }
             pid_t p = wait(NULL);
-            // TODO: Remove debug line.
-            fprintf(stderr, "i: %d pid: %ld ppid: %ld cid: %ld\n",
-                    i, (long) getpid(), (long) getppid(), (long) child_pid);
         }
     }
 
@@ -176,8 +166,6 @@ int main(int argc, char* argv[]) {
         close(write_fd);
         free(read_buffer);
         free_program_options(&program_opts);
-        // TODO: Remove for production. 
-        pause();
     }
 }
 
@@ -193,7 +181,6 @@ void find_subset(int* set, int size, int sum, long pid, int fd) {
     }
 
     if (!subset_sum(set, subset, size, 0, 0, 0, sum, fd, pid)) {
-        printf("%ld No subset with sum of %d\n", pid, sum);
         sprintf(pid_str_buffer, "%lu: ", pid);
         write(fd, pid_str_buffer, strlen(pid_str_buffer));
         write(fd, "No subset with sum ", strlen("No subset with sum "));
@@ -234,16 +221,13 @@ void display_subset(int subset[], int length, int sum, int fd, long pid) {
             sprintf(decimal_buffer, "%d", subset[i]);
             write(fd, decimal_buffer, strlen(decimal_buffer));
             strcpy(decimal_buffer, "");
-            printf("%d", subset[i]);
         } else {
             write(fd, " + ", 3);
             sprintf(decimal_buffer, "%d", subset[i]);
             write(fd, decimal_buffer, strlen(decimal_buffer));
             strcpy(decimal_buffer, "");
-            printf(" + %d ", subset[i]);
         }
     }
-    printf("= %d\n", sum);
     sprintf(decimal_buffer, "%d", sum);
     write(fd, " = ", 3);
     write(fd, decimal_buffer, strlen(decimal_buffer));
