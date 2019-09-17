@@ -25,6 +25,7 @@ int global_write_fd;
 pid_t global_child_process = 0;
 
 void alarm_handler(int);
+void child_alarm_handler(int);
 void error_formatted(char**, const char*, const char*, unsigned int);
 void print_error_and_terminate(const char*, const char*);
 void display_subset(int[], int, int, int, long);
@@ -126,6 +127,10 @@ int main(int argc, char* argv[]) {
         }
 
         if (child_pid == CHILD_PROCESS) {
+            if (signal(SIGALRM, child_alarm_handler) == SIG_ERR) {
+                print_error_and_terminate("Failure to set SIGALRM", argv[0]);
+            }
+            alarm(1);
             // Read the line of the file.
             readline(read_fd, read_buffer, READ_BUFFER_SIZE);
             // Get the number of tokens
@@ -259,6 +264,14 @@ void alarm_handler(int signum) {
         kill(global_child_process, SIGKILL);
     }
     print_error_and_terminate("Alarm raised", global_script_name);
+}
+
+
+void child_alarm_handler(int signum) {
+    char buffer[100];
+    sprintf(buffer, "%lu: No subset found after 1 second.", (long) global_child_process);
+    write(global_write_fd, buffer, strlen(buffer));
+    kill(global_child_process, SIGKILL);
 }
 
 
