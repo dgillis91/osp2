@@ -1,9 +1,44 @@
+# Operating System Assignment One
+
+This program computes the subset sum of n child processes specified in a file. That is, 
+we read the first line of the file to identify how many child processses we need to fork. 
+Then, we iterate over these n lines in the file, and return the *first* subset that sums to
+the first integer in the file. 
+
+## Assumptions 
+It is assumed that the delimiter for each line is a single space " ". Anything else will fail
+(possibly) unpleasantly. 
+
+## Build
+In /src:
+
+`make clean`
+
+`make subsetsum`
+
+## Run
+The build places the binary in /bin. 
+
+./subsetsum -i inputfile -o outputfile -t allowable_run_time
+
+Defaults:
+
+-i input.dat 
+
+-o output.dat 
+
+-t 10
+
 ## Notes
-- If a parent has set an alarm, the child is not notified if the alarm
- is raised. So, we will need to terminate the child. 
-- We can't pass data to a signal handler. So, we have to rely on globals.
- Note that in some cases, we do not block signals while setting the globals.
- This is a generally bad practice.
-##Todo:
-- Implement subset sum. 
-- Add the output file. 
+I'm not super proud of this code. It's a bit hectic and in need of refactoring. 
+I spent more time than I wish to admit working on implemeting the subset algorithm. So,
+while I started on this the day it was assigned, I lost several production hours working
+on that. 
+
+The linked list implementation is an artifact. I initially planned on using it with the 
+subset algorithm, but went with a "simpler" implementation. 
+
+## Known (Potential) Issues
+- I'm using an alarm to kill the child in the child process. It's possible that the alarm
+could be raised AFTER the child writes to the output file. This would cause strange output.
+I'll fix this if I have time. 
