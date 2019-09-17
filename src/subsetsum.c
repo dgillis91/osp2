@@ -205,7 +205,7 @@ int subset_sum(int* set, int* subset, int n, int subset_size, int total, int nod
     } else {
         // Iterate over the breadth of the option tree
         int i;
-        for (int i = node_count; i < n; ++i) {
+        for (i = node_count; i < n; ++i) {
             subset[subset_size] = set[i];
             if (subset_sum(set, subset, n, subset_size + 1, total + set[i], i + 1, sum) == 1) {
                 return 1;
