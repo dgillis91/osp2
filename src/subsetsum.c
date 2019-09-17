@@ -59,11 +59,17 @@ int main(int argc, char* argv[]) {
     alarm(program_opts->allowable_run_time);
 
     // Open the passed in file.
+    // TODO: Remove debug line.
     printf("%s\n", program_opts->input_file);
     if ((read_fd = open(program_opts->input_file, O_RDONLY)) == -1) {
-        print_error_and_terminate("Failure to open file", argv[0]);
+        print_error_and_terminate("Failure to open file for reading", argv[0]);
+    }
+
+    if ((write_fd = open(program_opts->output_file, O_WRONLY | O_CREAT | O_TRUNC)) == -1) {
+        print_error_and_terminate("Failure to open file for writing", argv[0]);
     }
     global_read_fd = read_fd;
+    global_write_fd = write_fd;
 
     // Read the first line
     int bytes_read;
@@ -116,9 +122,20 @@ int main(int argc, char* argv[]) {
             int* array = (int*) malloc(sizeof(int) * line_token_count);
             // Tokenize into the array.
             tokenize(read_buffer, array, " ");
+            // Number to sum to.
+            int sum = array[0];
+            // Set to search.
+            int* set = (int*) malloc(sizeof(int) * (line_token_count - 1));
+            // Copy array.
+            int i;
+            for (i = 0; i < line_token_count - 1; ++i) {
+                set[i] = array[i + 1];
+            }
+            find_subset(set, line_token_count, sum, (long) getppid());
             // Perform the subset sum problem.
             // Free the allocated set.
             free(array);
+            free(set);
             break;
         }
 
@@ -156,6 +173,7 @@ int main(int argc, char* argv[]) {
 
     if (child_pid != CHILD_PROCESS) {
         close(read_fd);
+        close(write_fd);
         free(read_buffer);
         free_program_options(&program_opts);
         // Remove for production. 
@@ -183,6 +201,7 @@ void find_subset(int* set, int size, int sum, long pid) {
 int subset_sum(int* set, int* subset, int n, int subset_size, int total, int node_count, int sum) {
     if (total == sum) {
         display_subset(subset, subset_size, sum);
+        return 1;
     } else {
         // Iterate over the breadth of the option tree
         int i;
@@ -194,7 +213,6 @@ int subset_sum(int* set, int* subset, int n, int subset_size, int total, int nod
         }
         return 0;
     }
-    return 0;
 }
 
 
@@ -215,6 +233,10 @@ void alarm_handler(int signum) {
     int local_errno;
     local_errno = errno;
     if (close(global_read_fd) == -1) {
+        perror("Failed to close file in sig handler");
+        errno = local_errno;
+    }
+    if (close(global_write_fd) == -1) {
         perror("Failed to close file in sig handler");
         errno = local_errno;
     }
