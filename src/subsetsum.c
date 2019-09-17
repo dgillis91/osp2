@@ -176,7 +176,7 @@ int main(int argc, char* argv[]) {
         close(write_fd);
         free(read_buffer);
         free_program_options(&program_opts);
-        // Remove for production. 
+        // TODO: Remove for production. 
         pause();
     }
 }
