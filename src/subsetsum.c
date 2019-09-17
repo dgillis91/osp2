@@ -25,12 +25,11 @@ int global_write_fd;
 pid_t global_child_process = 0;
 
 void alarm_handler(int);
-
-
 void error_formatted(char**, const char*, const char*, unsigned int);
-
-
 void print_error_and_terminate(const char*, const char*);
+void display_subset(int[], int, int);
+void find_subset(int*, int, int, long);
+int subset_sum(int*, int*, int, int, int, int, int);
 
 
 int main(int argc, char* argv[]) {
@@ -162,6 +161,53 @@ int main(int argc, char* argv[]) {
         // Remove for production. 
         pause();
     }
+}
+
+
+void find_subset(int* set, int size, int sum, long pid) {
+    int* subset = (int*) malloc(size * sizeof(int));
+
+    if (subset == NULL) {
+        perror("Unable to allocate memory");
+        return;
+    }
+
+    if (!subset_sum(set, subset, size, 0, 0, 0, sum)) {
+        printf("%ld No subset with sum of %d\n", pid, sum);
+    }
+
+    free(subset);
+}
+
+
+int subset_sum(int* set, int* subset, int n, int subset_size, int total, int node_count, int sum) {
+    if (total == sum) {
+        display_subset(subset, subset_size, sum);
+    } else {
+        // Iterate over the breadth of the option tree
+        int i;
+        for (int i = node_count; i < n; ++i) {
+            subset[subset_size] = set[i];
+            if (subset_sum(set, subset, n, subset_size + 1, total + set[i], i + 1, sum) == 1) {
+                return 1;
+            }
+        }
+        return 0;
+    }
+    return 0;
+}
+
+
+void display_subset(int subset[], int length, int sum) {
+    int i;
+    for (i = 0; i < length; ++i) {
+        if (i == 0) {
+            printf("%d", subset[i]);
+        } else {
+            printf(" + %d ", subset[i]);
+        }
+    }
+    printf("= %d\n", sum);
 }
 
 
