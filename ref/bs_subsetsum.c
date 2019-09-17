@@ -2,7 +2,7 @@
 #include <stdlib.h>
 
 
-void display_subset(int[], int);
+void display_subset(int[], int, int);
 
 
 void find_subset(int*, int, int, long);
@@ -37,8 +37,7 @@ void find_subset(int* set, int size, int sum, long pid) {
 
 int subset_sum(int* set, int* subset, int n, int subset_size, int total, int node_count, int sum) {
     if (total == sum) {
-        display_subset(subset, subset_size);
-        return 1;
+        display_subset(subset, subset_size, sum);
     } else {
         // Iterate over the breadth of the option tree
         int i;
@@ -50,13 +49,18 @@ int subset_sum(int* set, int* subset, int n, int subset_size, int total, int nod
         }
         return 0;
     }
+    return 0;
 }
 
 
-void display_subset(int subset[], int length) {
+void display_subset(int subset[], int length, int sum) {
     int i;
     for (i = 0; i < length; ++i) {
-        printf("%d ", subset[i]);
+        if (i == 0) {
+            printf("%d", subset[i]);
+        } else {
+            printf(" + %d ", subset[i]);
+        }
     }
-    printf("\n");
+    printf("= %d\n", sum);
 }
