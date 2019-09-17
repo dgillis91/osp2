@@ -101,11 +101,30 @@ int main(int argc, char* argv[]) {
         if (sigprocmask(SIG_UNBLOCK, &block_set, NULL) == -1) {
             print_error_and_terminate("Failure to unblock SIGALRM", argv[0]);
         }
+
+        // Fork off a child
         if ((child_pid = fork()) == -1) {
             perror("Failed to fork");
             return EXIT_FAILURE;
         }
         
+        // Set the global child process in the parent and child so we can kill the child
+        // in both as necessary.
+        if ((sigemptyset(&block_set) == -1) || (sigaddset(&block_set, SIGALRM) == -1)) {
+            print_error_and_terminate("Failure to initialize sigset", argv[0]);
+        }
+        if (sigprocmask(SIG_BLOCK, &block_set, NULL) == -1) {
+            print_error_and_terminate("Failure to block SIGALRM", argv[0]);
+        }
+        if (child_pid != CHILD_PROCESS) {
+            global_child_process = child_pid;
+        } else {
+            global_child_process = getpid();
+        }
+        if (sigprocmask(SIG_UNBLOCK, &block_set, NULL) == -1) {
+            print_error_and_terminate("Failure to unblock SIGALRM", argv[0]);
+        }
+
         if (child_pid == CHILD_PROCESS) {
             // Read the line of the file.
             readline(read_fd, read_buffer, READ_BUFFER_SIZE);
@@ -133,16 +152,6 @@ int main(int argc, char* argv[]) {
         }
 
         if (child_pid != CHILD_PROCESS) {
-            if ((sigemptyset(&block_set) == -1) || (sigaddset(&block_set, SIGALRM) == -1)) {
-                print_error_and_terminate("Failure to initialize sigset", argv[0]);
-            }
-            if (sigprocmask(SIG_BLOCK, &block_set, NULL) == -1) {
-                print_error_and_terminate("Failure to block SIGALRM", argv[0]);
-            }
-            global_child_process = child_pid;
-            if (sigprocmask(SIG_UNBLOCK, &block_set, NULL) == -1) {
-                print_error_and_terminate("Failure to unblock SIGALRM", argv[0]);
-            }
             pid_t p = wait(NULL);
         }
     }
