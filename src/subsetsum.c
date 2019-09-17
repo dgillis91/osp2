@@ -198,6 +198,9 @@ void find_subset(int* set, int size, int sum, long pid, int fd) {
         sprintf(pid_str_buffer, "%lu: ", pid);
         write(fd, pid_str_buffer, strlen(pid_str_buffer));
         write(fd, "No subset with sum ", strlen("No subset with sum "));
+        char buffer[20];
+        sprintf(buffer, "%d\n", sum);
+        write(fd, buffer, strlen(buffer));
     }
 
     free(subset);
