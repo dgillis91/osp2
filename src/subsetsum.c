@@ -27,9 +27,9 @@ pid_t global_child_process = 0;
 void alarm_handler(int);
 void error_formatted(char**, const char*, const char*, unsigned int);
 void print_error_and_terminate(const char*, const char*);
-void display_subset(int[], int, int);
-void find_subset(int*, int, int, long);
-int subset_sum(int*, int*, int, int, int, int, int);
+void display_subset(int[], int, int, int, long);
+void find_subset(int*, int, int, long, int);
+int subset_sum(int*, int*, int, int, int, int, int, int, long);
 
 
 int main(int argc, char* argv[]) {
@@ -65,7 +65,7 @@ int main(int argc, char* argv[]) {
         print_error_and_terminate("Failure to open file for reading", argv[0]);
     }
 
-    if ((write_fd = open(program_opts->output_file, O_WRONLY | O_CREAT | O_TRUNC)) == -1) {
+    if ((write_fd = open(program_opts->output_file, O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR)) == -1) {
         print_error_and_terminate("Failure to open file for writing", argv[0]);
     }
     global_read_fd = read_fd;
@@ -131,7 +131,7 @@ int main(int argc, char* argv[]) {
             for (i = 0; i < line_token_count - 1; ++i) {
                 set[i] = array[i + 1];
             }
-            find_subset(set, line_token_count, sum, (long) getppid());
+            find_subset(set, line_token_count, sum, (long) getpid(), write_fd);
             // Perform the subset sum problem.
             // Free the allocated set.
             free(array);
@@ -182,7 +182,9 @@ int main(int argc, char* argv[]) {
 }
 
 
-void find_subset(int* set, int size, int sum, long pid) {
+void find_subset(int* set, int size, int sum, long pid, int fd) {
+    char pid_str_buffer[40];
+
     int* subset = (int*) malloc(size * sizeof(int));
 
     if (subset == NULL) {
@@ -190,24 +192,27 @@ void find_subset(int* set, int size, int sum, long pid) {
         return;
     }
 
-    if (!subset_sum(set, subset, size, 0, 0, 0, sum)) {
+    if (!subset_sum(set, subset, size, 0, 0, 0, sum, fd, pid)) {
         printf("%ld No subset with sum of %d\n", pid, sum);
+        sprintf(pid_str_buffer, "%lu: ", pid);
+        write(fd, pid_str_buffer, strlen(pid_str_buffer));
+        write(fd, "No subset with sum ", strlen("No subset with sum "));
     }
 
     free(subset);
 }
 
 
-int subset_sum(int* set, int* subset, int n, int subset_size, int total, int node_count, int sum) {
+int subset_sum(int* set, int* subset, int n, int subset_size, int total, int node_count, int sum, int fd, long pid) {
     if (total == sum) {
-        display_subset(subset, subset_size, sum);
+        display_subset(subset, subset_size, sum, fd, pid);
         return 1;
     } else {
         // Iterate over the breadth of the option tree
         int i;
         for (i = node_count; i < n; ++i) {
             subset[subset_size] = set[i];
-            if (subset_sum(set, subset, n, subset_size + 1, total + set[i], i + 1, sum) == 1) {
+            if (subset_sum(set, subset, n, subset_size + 1, total + set[i], i + 1, sum, fd, pid) == 1) {
                 return 1;
             }
         }
@@ -216,16 +221,33 @@ int subset_sum(int* set, int* subset, int n, int subset_size, int total, int nod
 }
 
 
-void display_subset(int subset[], int length, int sum) {
+void display_subset(int subset[], int length, int sum, int fd, long pid) {
+    const int buffer_length = 100;
+    char decimal_buffer[40];
+
+    sprintf(decimal_buffer, "%lu: ", pid);
+    write(fd, decimal_buffer, strlen(decimal_buffer));
+
     int i;
     for (i = 0; i < length; ++i) {
         if (i == 0) {
+            sprintf(decimal_buffer, "%d", subset[i]);
+            write(fd, decimal_buffer, strlen(decimal_buffer));
+            strcpy(decimal_buffer, "");
             printf("%d", subset[i]);
         } else {
+            write(fd, " + ", 3);
+            sprintf(decimal_buffer, "%d", subset[i]);
+            write(fd, decimal_buffer, strlen(decimal_buffer));
+            strcpy(decimal_buffer, "");
             printf(" + %d ", subset[i]);
         }
     }
     printf("= %d\n", sum);
+    sprintf(decimal_buffer, "%d", sum);
+    write(fd, " = ", 3);
+    write(fd, decimal_buffer, strlen(decimal_buffer));
+    write(fd, "\n", 1);
 }
 
 
