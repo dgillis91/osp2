@@ -15,7 +15,7 @@
 #include <../include/linked_list.h>
 
 #define CHILD_PROCESS 0
-#define READ_BUFFER_SIZE 100
+#define READ_BUFFER_SIZE 1000
 #define ERROR_MESSAGE_BUFFER_SIZE 100
 
 
@@ -26,6 +26,7 @@ pid_t global_child_process = 0;
 
 void alarm_handler(int);
 void child_alarm_handler(int);
+void child_sigint_handler(int);
 void error_formatted(char**, const char*, const char*, unsigned int);
 void print_error_and_terminate(const char*, const char*);
 void display_subset(int[], int, int, int, long);
@@ -131,6 +132,9 @@ int main(int argc, char* argv[]) {
                 print_error_and_terminate("Failure to set SIGALRM", argv[0]);
             }
             alarm(1);
+            if (signal(SIGINT, child_sigint_handler) == SIG_ERR) {
+                print_error_and_terminate("Failure to set SIGINT", argv[0]);
+            }
             // Read the line of the file.
             readline(read_fd, read_buffer, READ_BUFFER_SIZE);
             // Get the number of tokens
@@ -264,9 +268,9 @@ void alarm_handler(int signum) {
         errno = local_errno;
     }
     if (global_child_process) {
-        kill(global_child_process, SIGKILL);
+        kill(global_child_process, SIGINT);
     }
-    print_error_and_terminate("Alarm raised", global_script_name);
+    print_error_and_terminate("Failed to complete before time limit.", global_script_name);
 }
 
 
@@ -275,6 +279,11 @@ void child_alarm_handler(int signum) {
     sprintf(buffer, "%lu: No subset found after 1 second.", (long) global_child_process);
     write(global_write_fd, buffer, strlen(buffer));
     kill(global_child_process, SIGKILL);
+}
+
+
+void child_sigint_handler(int signum) {
+    exit(EXIT_FAILURE);
 }
 
 
