@@ -38,6 +38,10 @@ on that.
 The linked list implementation is an artifact. I initially planned on using it with the 
 subset algorithm, but went with a "simpler" implementation. 
 
+The program can only read lines up to 1000 characters long. In reality, this should be a
+parameter that the user can set. Instead, I chose to set it somewhat arbitrarily. Worth noting,
+I was able to force the child to terminate after one second with this buffer size. 
+
 ## Known (Potential) Issues
 - I'm using an alarm to kill the child in the child process. It's possible that the alarm
 could be raised AFTER the child writes to the output file. This would cause strange output.
